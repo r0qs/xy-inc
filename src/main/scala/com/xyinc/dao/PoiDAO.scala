@@ -26,10 +26,7 @@ class PoiDAO {
   private val db = Database.forURL(AppConfig.DB.url ,driver = AppConfig.DB.driver)
 
   // Create table action
-  val setupAction: DBIO[Unit] = DBIO.seq(
-    pois.schema.create,
-    pois += Poi(0, "Lanchonete", 27, 12)
-  )
+  val setupAction: DBIO[Unit] = DBIO.seq(pois.schema.create)
 
   // Create tables if not exist
   val createTableIfNotExists = db.run(DBIO.seq(
@@ -51,6 +48,11 @@ class PoiDAO {
 
   def delete(id: Int): Future[Int] = {
     val action = pois.deleteById(id)
+    db.run(action)
+  }
+
+  def searchNearest(x: Int, y: Int, dmax: Int): Future[List[Poi]] = {
+    val action = pois.nearestNeighborSearch(x, y, dmax).map(_.to[List])
     db.run(action)
   }
 
@@ -118,7 +120,11 @@ class PoiDAO {
    * @param dmax
    * @return list of Pois that are nearest from the point(x,y) based on the dmax
    */
-  //TODO: implement this!
-  def searchNearestPois(x: Int, y: Int, dmax: Int) = ???
+  def searchNearestPois(x: Int, y: Int, dmax: Int) = {
+    val result: Future[List[Poi]] = searchNearest(x, y, dmax)
+    val res = Await.result(result, 1 second)
+    println(res)
+    res
+  }
 }
 

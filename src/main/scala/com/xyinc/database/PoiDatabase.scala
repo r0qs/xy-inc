@@ -13,7 +13,7 @@ class PoisTable(tag: Tag) extends Table[Poi](tag, "POIS") {
   def name    = column[String]("NAME")
   def x       = column[Int]("X_COORD")
   def y       = column[Int]("Y_COORD")
-  def *       = (id, name, x, y) <> (Poi.tupled, Poi.unapply)
+  def *       = (id, name, x, y) <> ((Poi.apply _).tupled, Poi.unapply)
 }
 
 // Define db actions of PoisTable
@@ -48,4 +48,20 @@ object PoisTable extends TableQuery(new PoisTable(_)) {
   def deleteById(id: Int) = {
     this.filter(_.id === id).delete
   }
+
+  /**
+   * Find the nearest points of a given coordinate(x,y) until a maximum distance (dmax)
+   *
+   * @param x 
+   * @param y
+   * @param dmax
+   * @return list of Pois that are nearest from the point(x,y) based on the dmax (radius)
+   *
+   * FIXME: Use MongoDB or PostgreSQL instead of SQLite because it not support R-trees data structures 
+   * used for efficient spatial access methods, neither have a "pow" math function. So this is the 
+   * simplest way to solve the nearest neighbor search problem for this small test app.
+   */
+  def nearestNeighborSearch(x: Int, y: Int, dmax: Int) =
+    sql"""SELECT * FROM POIS WHERE ((${x} - X_COORD) * (${x} - X_COORD) + 
+      (${y} - Y_COORD) * (${y} - Y_COORD)) <= (${dmax} * ${dmax})""".as[Poi]
 }

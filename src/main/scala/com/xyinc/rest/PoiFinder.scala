@@ -54,7 +54,7 @@ trait POIFinder extends HttpService with SLF4JLogging {
     (get & path("pois" / "nearest")) {
       parameters("x".as[Int], "y".as[Int], "dmax".as[Int]) { (x, y, dmax) =>
         log.info("Searching for POIs with parameters: %s, %s, %s".format(x, y, dmax))
-        poiDAO.searchNearestPois(x, y, dmax)
+        complete(poiDAO.searchNearestPois(x, y, dmax))
       }
     } ~
     // Delete a single Poi
