@@ -9,13 +9,13 @@ import spray.can.Http
 
 import scala.concurrent.duration._
 
-import com.xyinc.service.POIFinderActor
+import com.xyinc.rest.POIFinderActor
 
 object Boot extends App {
 
   implicit val system = ActorSystem("XY-incPOIFinderSystem")
 
-  // the service actor that replies to incoming HttpRequests
+  // Service actor that replies to incoming HttpRequests
   val service = system.actorOf(Props[POIFinderActor], name = "poifinder-service")
   val interface = system.settings.config.getString("app.interface")
   val port = system.settings.config.getInt("app.port")
