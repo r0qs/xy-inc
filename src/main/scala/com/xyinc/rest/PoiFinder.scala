@@ -38,10 +38,10 @@ trait POIFinder extends HttpService with SLF4JLogging {
     } ~
     // Create a single Poi
     (post & path("pois")) {
-      entity(as[Poi]) { poi => ctx =>
+      entity(as[Poi]) { poi =>
         log.debug("Creating POI: %s".format(poi))
         val insertedPoi = poiDAO.insertPoi(poi)
-        ctx.complete(StatusCodes.Created, insertedPoi)
+        complete(StatusCodes.Created, insertedPoi)
       }
     } ~
     // Get a single Poi by id
@@ -53,15 +53,15 @@ trait POIFinder extends HttpService with SLF4JLogging {
     // Search for POIs with distance less than or equals dmax from a given coordinate (x,y)
     (get & path("pois" / "nearest")) {
       parameters("x".as[Int], "y".as[Int], "dmax".as[Int]) { (x, y, dmax) =>
-        log.info("Searching for POIs with parameters: %s, %s, %s".format(x, y, dmax))
+        log.debug("Searching for POIs near to: (%s, %s) up to: %s".format(x, y, dmax))
         complete(poiDAO.searchNearestPois(x, y, dmax))
       }
     } ~
     // Delete a single Poi
-    (delete & path("pois" / IntNumber)) { id => ctx =>
+    (delete & path("pois" / IntNumber)) { id =>
       log.debug("Deleting POI with id %d".format(id))
       poiDAO.deletePoi(id)
-      ctx.complete(StatusCodes.NoContent)
+      complete(StatusCodes.OK)
     }
   }
 }

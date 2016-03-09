@@ -22,6 +22,7 @@ libraryDependencies ++= {
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaVersion   % "test",
     "com.typesafe.slick"  %%  "slick"         % "3.1.1",
     "org.xerial"          %   "sqlite-jdbc"   % "3.8.11.2",
+    "org.scalatest"       %%  "scalatest"     % "2.2.4"       % "test",
     "ch.qos.logback"      %   "logback-classic" % "1.1.3"
   )
 }
