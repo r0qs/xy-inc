@@ -18,8 +18,10 @@ class POIFinderActor extends Actor with POIFinder {
 
 // This trait defines the service behavior independently from the service actor
 trait POIFinder extends HttpService with SLF4JLogging {
-
+  
   private val poiDAO = new PoiDAO 
+
+  def clearDB = poiDAO.dropTable
 
   val defaultRoute = {
     (get & path("")) {
@@ -47,8 +49,7 @@ trait POIFinder extends HttpService with SLF4JLogging {
     // Get a single Poi by id
     (get & path("pois" / IntNumber)) { id =>
       log.debug("Retrieving POI with id %d".format(id))
-      val poi = poiDAO.getPoi(id)
-      complete(poi)
+      complete(poiDAO.getPoi(id))
     } ~
     // Search for POIs with distance less than or equals dmax from a given coordinate (x,y)
     (get & path("pois" / "nearest")) {
@@ -60,8 +61,9 @@ trait POIFinder extends HttpService with SLF4JLogging {
     // Delete a single Poi
     (delete & path("pois" / IntNumber)) { id =>
       log.debug("Deleting POI with id %d".format(id))
-      poiDAO.deletePoi(id)
-      complete(StatusCodes.OK)
+      val ret = poiDAO.deletePoi(id)
+      val status = if (ret == 1){ StatusCodes.OK } else { StatusCodes.BadRequest}
+      complete(status)
     }
   }
 }

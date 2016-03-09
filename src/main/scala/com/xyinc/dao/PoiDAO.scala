@@ -1,6 +1,6 @@
 package com.xyinc.dao
 
-import slick.driver.SQLiteDriver.api._
+import slick.driver.H2Driver.api._
 // FIXME: use implicit execution context for futures
 //import system.dispatcher
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -23,7 +23,7 @@ class PoiDAO {
   lazy val pois = PoisTable
   
   // Init Database instance
-  private val db = Database.forURL(AppConfig.DB.url ,driver = AppConfig.DB.driver)
+  val db = Database.forConfig("database")
 
   // Create table action
   val setupAction: DBIO[Unit] = DBIO.seq(pois.schema.create)
@@ -35,6 +35,13 @@ class PoiDAO {
           db.run(setupAction)
       })
   )) 
+
+  def dropTable: Unit = db.run(DBIO.seq(
+    MTable.getTables map (tables => {
+      if (tables.exists(_.name.name == pois.baseTableRow.tableName))
+        db.run(DBIO.seq(pois.schema.drop))
+    })
+  ))
 
   def insert(name: String, x: Int, y: Int) : Future[Poi] = {
     val action = pois.create(Poi(0, name, x, y))
@@ -67,7 +74,6 @@ class PoiDAO {
     //FIXME: Don't block here
     // Pass a future and resolve it in PoiFinder
     val res = Await.result(result, 1 second)
-    println(res)
     res
   }
 
@@ -77,10 +83,9 @@ class PoiDAO {
    * @param id id of the Poi to retrieve
    * @return Option[Poi] entity with specified id or None if not found
    */
-  def getPoi(id: Int) = {
+  def getPoi(id: Int): Option[Poi] = {
     val result: Future[Option[Poi]] = get(id)
     val res = Await.result(result, 1 second)
-    println(res)
     res
   }
 
@@ -94,7 +99,6 @@ class PoiDAO {
     //FIXME: x and y must be positive and name not a empty String
     val result: Future[Poi] = insert(poi.name, poi.x, poi.y)
     val res = Await.result(result, 1 second)
-    println(res)
     res
   }
 
@@ -104,10 +108,9 @@ class PoiDAO {
    * @param id id of the Pois to delete
    * @return 1 if Poi was deleted or 0 if not
    */
-  def deletePoi(id: Int) = {
+  def deletePoi(id: Int): Int = {
     val result: Future[Int] = delete(id)
     val res = Await.result(result, 1 second)
-    println(res)
     res
   }
  
@@ -120,10 +123,9 @@ class PoiDAO {
    * @param dmax
    * @return list of Pois that are nearest from the point(x,y) based on the dmax
    */
-  def searchNearestPois(x: Int, y: Int, dmax: Int) = {
+  def searchNearestPois(x: Int, y: Int, dmax: Int): List[Poi] = {
     val result: Future[List[Poi]] = searchNearest(x, y, dmax)
     val res = Await.result(result, 1 second)
-    println(res)
     res
   }
 }

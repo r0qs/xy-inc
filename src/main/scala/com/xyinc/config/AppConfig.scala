@@ -21,7 +21,6 @@ object AppConfig {
   object DB {
     private val dbConfig = config.getConfig("database")
     lazy val url = dbConfig.getString("url")
-    lazy val urlDebug = dbConfig.getString("url-debug")
     lazy val driver = dbConfig.getString("driver")
   }
 

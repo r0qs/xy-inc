@@ -4,7 +4,7 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
 import scala.concurrent.ExecutionContext.Implicits.global
-import slick.driver.SQLiteDriver.api._
+import slick.driver.H2Driver.api._
 import slick.jdbc.meta._
 
 import com.xyinc.dto._
@@ -37,13 +37,13 @@ class PoiDAOSuite extends FunSuite with BeforeAndAfter with ScalaFutures {
   def insertPois(): Int = db.run(pois ++= insertAction).futureValue.get
 
   before { 
-    db = Database.forURL(AppConfig.DB.urlDebug ,driver = AppConfig.DB.driver) 
+    db = Database.forConfig("database") 
     createSchema()
   }
   
   test("Creating the Schema...") {
     val tables = db.run(MTable.getTables).futureValue
-    assert(tables.size == 2) // POIS and sqlite_sequence
+    assert(tables.size == 1)
     assert(tables.count(_.name.name.equalsIgnoreCase("POIS")) == 1)
   }
 

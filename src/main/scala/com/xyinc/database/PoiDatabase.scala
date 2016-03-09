@@ -1,6 +1,6 @@
 package com.xyinc.database
 
-import slick.driver.SQLiteDriver.api._
+import slick.driver.H2Driver.api._
 
 import com.xyinc.dto.Poi
 
