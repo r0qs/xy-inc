@@ -8,13 +8,21 @@ It solves a simplification of the problem of finding points of interest.
 
 ## Dependencies
 
-* [Scala] programming language.
+* [Scala] - Programming language.
 * [SBT] (Simple Build Tool) - Build tool for Scala and Java projects.
 * [Akka] - Asynchronous event-driven middleware framework implemented in Scala, for building high performance and reliable distributed applications. Akka decouples business logic from low-level mechanisms such as threads, locks and non-blocking IO.
 * [Spray] - Scala framework for building RESTful web services on top of Akka: lightweight, asynchronous, non-blocking, actor-based, modular, testable.
 * [Slick] - Database query and access library for Scala. It provides a toolkit to work with stored data almost as using Scala collections. Features an extensible query compiler which can generate code for different backends.
 * [H2] - A in-memory database._This will be replaced soon, and replaced by MongoDB_.
 * [Logback] - Fast and stable logging utility. Natively implements the SLF4J API.
+
+## Download SBT
+
+If you don't have a SBT in you system you can get it from a repository or run the following script to download and install it locally (version 0.13.11).
+
+```
+sh sbt_install.sh
+```
 
 ## Run!
 
