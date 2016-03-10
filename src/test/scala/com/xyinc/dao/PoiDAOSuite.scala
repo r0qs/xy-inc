@@ -12,8 +12,11 @@ import com.xyinc.database._
 import com.xyinc.database.PoisTable
 import com.xyinc.config.AppConfig
 
+class PoiDAOSuite
+  extends FunSuite
+  with BeforeAndAfter
+  with ScalaFutures {
 
-class PoiDAOSuite extends FunSuite with BeforeAndAfter with ScalaFutures {
   implicit override val patienceConfig = PatienceConfig(timeout = Span(5, Seconds))
 
   val pois = PoisTable

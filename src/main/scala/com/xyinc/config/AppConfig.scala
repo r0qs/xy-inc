@@ -9,7 +9,7 @@ object AppConfig {
   /**
    * Configuration information of the service
    */
-  object POIService {
+  object PoiService {
     private val serviceConfig = config.getConfig("app")
     lazy val hostname = serviceConfig.getString("interface")
     lazy val port = serviceConfig.getInt("port")

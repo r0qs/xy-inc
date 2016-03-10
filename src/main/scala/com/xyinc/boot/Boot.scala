@@ -9,7 +9,7 @@ import spray.can.Http
 
 import scala.concurrent.duration._
 
-import com.xyinc.rest.POIFinderActor
+import com.xyinc.rest.PoiFinderActor
 
 object Boot extends App {
 
@@ -18,7 +18,7 @@ object Boot extends App {
   implicit val timeout = Timeout(5.seconds)
 
   // Service actor that replies to incoming HttpRequests
-  val service = system.actorOf(Props[POIFinderActor], name = "poifinder-service")
+  val service = system.actorOf(Props[PoiFinderActor], name = "poifinder-service")
   val interface = system.settings.config.getString("app.interface")
   val port = system.settings.config.getInt("app.port")
   

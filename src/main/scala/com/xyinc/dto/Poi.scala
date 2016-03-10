@@ -1,7 +1,10 @@
 package com.xyinc.dto
 
 import spray.json._
+import spray.httpx.unmarshalling._
+import spray.httpx.marshalling._
 import DefaultJsonProtocol._
+import spray.httpx.SprayJsonSupport
 import slick.jdbc.GetResult
 
 /**
@@ -30,6 +33,24 @@ object Poi {
 /**
  * Provide JsonFormat for Poi
  */
-object PoiJsonProtocol extends DefaultJsonProtocol {
+object PoiJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val poiFormat = jsonFormat4(Poi.apply)
+  
+  implicit object TaskJsonFormat extends RootJsonFormat[Poi] {
+
+    def write(p: Poi) = JsObject(
+      "id"    -> JsNumber(p.id),
+      "name"  -> JsString(p.name),
+      "x"     -> JsNumber(p.x),
+      "y"     -> JsNumber(p.y)
+    )
+
+    def read(j: JsValue) = {
+      j.asJsObject.getFields("id", "name", "x", "y") match {
+        case Seq(JsNumber(id), JsString(name), JsNumber(x), JsNumber(y)) =>
+          new Poi(id.toInt, name, x.toInt, y.toInt)
+        case _ => throw new DeserializationException("Improperly formed Poi object")
+      }
+    }
+  }
 }

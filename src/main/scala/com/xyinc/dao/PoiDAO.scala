@@ -1,14 +1,9 @@
 package com.xyinc.dao
 
 import slick.driver.H2Driver.api._
-// FIXME: use implicit execution context for futures
-//import system.dispatcher
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import slick.jdbc.meta.MTable
-//FIXME: the following imports will be removed!
-import scala.concurrent.Await
-import scala.concurrent.duration._
 
 import com.xyinc.dto._
 import com.xyinc.database._
@@ -20,6 +15,7 @@ import com.xyinc.config.AppConfig
  * Creates the SQLite database and define operations
  */
 class PoiDAO {
+
   lazy val pois = PoisTable
   
   // Init Database instance
@@ -35,47 +31,15 @@ class PoiDAO {
           db.run(setupAction)
       })
   )) 
-
-  def dropTable: Unit = db.run(DBIO.seq(
-    MTable.getTables map (tables => {
-      if (tables.exists(_.name.name == pois.baseTableRow.tableName))
-        db.run(DBIO.seq(pois.schema.drop))
-    })
-  ))
-
-  def insert(name: String, x: Int, y: Int) : Future[Poi] = {
-    val action = pois.create(Poi(0, name, x, y))
-    db.run(action)
-  }
-
-  def get(id: Int): Future[Option[Poi]] = {
-    val action = pois.findById(id).map(_.headOption)
-    db.run(action)
-  }
-
-  def delete(id: Int): Future[Int] = {
-    val action = pois.deleteById(id)
-    db.run(action)
-  }
-
-  def searchNearest(x: Int, y: Int, dmax: Int): Future[List[Poi]] = {
-    val action = pois.nearestNeighborSearch(x, y, dmax).map(_.to[List])
-    db.run(action)
-  }
+  
+  // Drop db table
+  def clear = db.run(DBIO.seq(pois.schema.drop))
 
   /**
    * Get all Pois from the database
-   * @return A List of all Pois currently in the database
+   * @return A Seq of all Pois currently in the database
    */
-  def getAllPois(): List[Poi] = {
-    // select * from POIS;
-    val action = pois.to[List].result
-    val result: Future[List[Poi]] = db.run(action)
-    //FIXME: Don't block here
-    // Pass a future and resolve it in PoiFinder
-    val res = Await.result(result, 1 second)
-    res
-  }
+  def getAll(): Future[Seq[Poi]] = db.run(pois.result)
 
   /**
    * Retrieves specific Poi from database.
@@ -83,11 +47,7 @@ class PoiDAO {
    * @param id id of the Poi to retrieve
    * @return Option[Poi] entity with specified id or None if not found
    */
-  def getPoi(id: Int): Option[Poi] = {
-    val result: Future[Option[Poi]] = get(id)
-    val res = Await.result(result, 1 second)
-    res
-  }
+  def get(id: Int): Future[Option[Poi]] = db.run(pois.findById(id)).map(_.headOption)
 
   /**
    * Saves Poi entity into database.
@@ -95,12 +55,7 @@ class PoiDAO {
    * @param poi Poi entity to store
    * @return the saved Poi entity
    */
-  def insertPoi(poi: Poi): Poi = {
-    //FIXME: x and y must be positive and name not a empty String
-    val result: Future[Poi] = insert(poi.name, poi.x, poi.y)
-    val res = Await.result(result, 1 second)
-    res
-  }
+  def insert(poi: Poi) : Future[Poi] = db.run(pois.create(Poi(0, poi.name, poi.x, poi.y)))
 
   /**
    * Deletes Poi from database.
@@ -108,25 +63,18 @@ class PoiDAO {
    * @param id id of the Pois to delete
    * @return 1 if Poi was deleted or 0 if not
    */
-  def deletePoi(id: Int): Int = {
-    val result: Future[Int] = delete(id)
-    val res = Await.result(result, 1 second)
-    res
-  }
- 
+  def delete(id: Int): Future[Int] = db.run(pois.deleteById(id))
+
   /**
-   * Retrieves list of Pois with distance less than or equals dmax 
+   * Retrieves a Seq of Pois with distance less than or equals dmax 
    * from a given coordinate (x,y) from database.
    *
    * @param x 
    * @param y
    * @param dmax
-   * @return list of Pois that are nearest from the point(x,y) based on the dmax
+   * @return Seq of Pois that are nearest from the point(x,y) based on the dmax
    */
-  def searchNearestPois(x: Int, y: Int, dmax: Int): List[Poi] = {
-    val result: Future[List[Poi]] = searchNearest(x, y, dmax)
-    val res = Await.result(result, 1 second)
-    res
-  }
+  def searchNearest(x: Int, y: Int, dmax: Int): Future[Seq[Poi]] = 
+    db.run(pois.nearestNeighborSearch(x, y, dmax))
 }
 

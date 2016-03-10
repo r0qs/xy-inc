@@ -8,7 +8,6 @@ import com.xyinc.dto.Poi
  * Defines the POIS table.
  */
 class PoisTable(tag: Tag) extends Table[Poi](tag, "POIS") {
-  //FIXME: is better use id as a Option[Int]?
   def id      = column[Int]("ID", O.PrimaryKey, O.AutoInc)
   def name    = column[String]("NAME")
   def x       = column[Int]("X_COORD")
@@ -57,8 +56,8 @@ object PoisTable extends TableQuery(new PoisTable(_)) {
    * @param dmax
    * @return list of Pois that are nearest from the point(x,y) based on the dmax (radius)
    *
-   * FIXME: Use MongoDB or PostgreSQL instead of SQLite because it not support R-trees data structures 
-   * used for efficient spatial access methods, neither have a "pow" math function. So this is the 
+   * FIXME: Use MongoDB or PostgreSQL to support R-trees data structures 
+   * used for efficient spatial access methods. So this is the 
    * simplest way to solve the nearest neighbor search problem for this small test app.
    */
   def nearestNeighborSearch(x: Int, y: Int, dmax: Int) =
