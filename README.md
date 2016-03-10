@@ -3,8 +3,18 @@ Zup programming test
 ## _POIsFinder_ Project
 
 This project is NOT recommended to be used in production, however it's a great project to play 
-around with implementing, learning and discussing about a better RESTFul architecture. 
+around with implementing, learning and discussing about a better RESTful architecture. 
 It solves a simplification of the problem of finding points of interest.
+
+## Dependencies
+
+* [Scala] programming language.
+* [SBT] (Simple Build Tool) - Build tool for Scala and Java projects.
+* [Akka] - Asynchronous event-driven middleware framework implemented in Scala, for building high performance and reliable distributed applications. Akka decouples business logic from low-level mechanisms such as threads, locks and non-blocking IO.
+* [Spray] - Scala framework for building RESTful web services on top of Akka: lightweight, asynchronous, non-blocking, actor-based, modular, testable.
+* [Slick] - Database query and access library for Scala. It provides a toolkit to work with stored data almost as using Scala collections. Features an extensible query compiler which can generate code for different backends.
+* [H2] - A in-memory database._This will be replaced soon, and replaced by MongoDB_.
+* [Logback] - Fast and stable logging utility. Natively implements the SLF4J API.
 
 ## Run!
 
@@ -62,3 +72,11 @@ sbt "test-only *PoiDAOSuite"
 ```
 sbt "test-only *PoiServiceSpec"
 ```
+
+[Scala]: http://www.scala-lang.org
+[SBT]: http://www.scala-sbt.org
+[Akka]: http://akka.io 
+[Spray]: http://spray.io 
+[Slick]: http://slick.typesafe.com
+[H2]: http://h2database.com/html/main.html
+[Logback]: http://logback.qos.ch
