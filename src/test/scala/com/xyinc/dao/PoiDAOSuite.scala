@@ -4,28 +4,24 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
 import scala.concurrent.ExecutionContext.Implicits.global
-import slick.driver.H2Driver.api._
-import slick.jdbc.meta._
+import scala.concurrent.Future
+import slick.jdbc.meta.MTable
 
 import com.xyinc.dto._
-import com.xyinc.database._
-import com.xyinc.database.PoisTable
-import com.xyinc.config.AppConfig
+import com.xyinc.dal.DAL
+import com.xyinc.config.Driver
+import com.xyinc.config.TestDatabaseSupport
 
 class PoiDAOSuite
   extends FunSuite
   with BeforeAndAfter
-  with ScalaFutures {
+  with ScalaFutures
+  with TestDatabaseSupport
+  with DAL {
+  
+  import driver.api._
 
   implicit override val patienceConfig = PatienceConfig(timeout = Span(5, Seconds))
-
-  val pois = PoisTable
-  
-  var db: Database = _
-
-  def createSchema() = db.run(pois.schema.create).futureValue
-
-  def dropSchema() = db.run(pois.schema.drop).futureValue
 
   val insertAction = Seq(          //IDs 
     Poi(0, "Lanchonete", 27, 12),  // 1
@@ -40,29 +36,32 @@ class PoiDAOSuite
   def insertPois(): Int = db.run(pois ++= insertAction).futureValue.get
 
   before { 
-    db = Database.forConfig("database") 
-    createSchema()
+    createDBSchema().futureValue
   }
-  
-  test("Creating the Schema...") {
+
+  after {
+    dropDBSchema().futureValue
+  }
+
+  test("Create database Schema") {
     val tables = db.run(MTable.getTables).futureValue
     assert(tables.size == 1)
     assert(tables.count(_.name.name.equalsIgnoreCase("POIS")) == 1)
   }
 
-  test("Inserting seven Pois...") {
+  test("Insert seven Pois on database") {
     val insertCount = insertPois()
     assert(insertCount == 7)
   }
   
-  test("Query Pois...") {
+  test("Query Pois from database") {
     insertPois()
     val results = db.run(pois.result).futureValue
     assert(results.size == 7)
     assert(results.head.id == 1)
   }
   
-  test("Insert new Poi and auto-increment id...") {
+  test("Insert new Poi and auto-increment ID") {
     val insertCount = insertPois()
     val poi         = db.run(pois.create(Poi(0, "Padaria", 50, 50))).futureValue 
     val results     = db.run(pois.result).futureValue
@@ -71,7 +70,7 @@ class PoiDAOSuite
     assert(poi.name == "Padaria")
   }
 
-  test("Delete a Poi by id...") {
+  test("Delete a Poi by ID") {
     val insertCount = insertPois()
     var status      = db.run(pois.deleteById(3)).futureValue 
     var results     = db.run(pois.result).futureValue
@@ -84,7 +83,7 @@ class PoiDAOSuite
     assert(status == 0) //not found
   }
 
-  test("Get a Poi by id...") {
+  test("Get a Poi by ID") {
     val insertCount = insertPois()
     var poi: Option[Poi]     = db.run(pois.findById(3)).map(_.headOption).futureValue
     assert(poi.get.name == "Joalheria")
@@ -93,7 +92,7 @@ class PoiDAOSuite
     assert(poi == None)
   }
 
-  test("Find nearest Pois...") {
+  test("Find nearest Pois") {
     val insertCount = insertPois()
     // x = 20, y = 10, dmax = 10
     var nearPois: List[Poi] = db.run(pois.nearestNeighborSearch(20, 10, 10)).map(_.to[List]).futureValue
@@ -102,10 +101,5 @@ class PoiDAOSuite
     // x = 1, y = 1, dmax = 3
     nearPois = db.run(pois.nearestNeighborSearch(1, 1, 3)).map(_.to[List]).futureValue
     assert(nearPois.map(_.name) == List())
-  }
-
-  after { 
-    dropSchema()
-    db.close 
   }
 }
