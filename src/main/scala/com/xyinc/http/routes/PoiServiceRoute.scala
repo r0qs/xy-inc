@@ -1,35 +1,53 @@
 package com.xyinc.http.routes
 
 import akka.event.slf4j.SLF4JLogging
+import akka.actor.ActorRefFactory
 import spray.routing._
 import spray.http._
+import spray.http.StatusCodes
 import spray.json._
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Success, Failure }
-import spray.httpx.marshalling.ToResponseMarshallable
+import scala.concurrent.Future
 
-import com.xyinc.services._
 import com.xyinc.dto.Poi
-import com.xyinc.dto.PoiJsonProtocol._
+import com.xyinc.dal.DAL
 
-trait PoiServiceRoute extends HttpService with PoiService with SLF4JLogging {
-  private implicit def ec = actorRefFactory.dispatcher
+class PoiServiceRoute(val dataAccess: DAL) (implicit val actorRefFactory: ActorRefFactory) 
+  extends HttpService with SLF4JLogging {
 
-  val poisRoute = {
+  import com.xyinc.dto.PoiJsonProtocol._
+  import spray.httpx.SprayJsonSupport._
+  import dataAccess._
+
+  // Rejections
+  // TODO: put this in a trait
+  val negativeParametersErrorMsg = "ERROR: parameters must be a positive number!"
+
+  implicit val rejectionHandler = RejectionHandler {
+    case ValidationRejection(rejectionError, None) :: _ =>
+      complete(StatusCodes.BadRequest, rejectionError)
+  }
+
+  val routes = {
     (get & path("")) {
-      complete {
-        "TODO: put routes preview here"
-      }
+      complete("")
     } ~
     // Get all pois
     (get & path("pois" / "all")) {
-      complete(getAllPois())
+        onComplete(getAllPois()) {
+          case Success(list) => complete(list)
+          case Failure(ex) => failWith(ex)
+        }
     } ~
     // Create a single Poi
     (post & path("pois")) {
       entity(as[Poi]) { poi =>
-        log.debug("Creating POI: %s".format(poi))
-        val insertedPoi = insertPoi(poi)
-        complete(StatusCodes.Created, insertedPoi)
+        validate((poi.x >=0 && poi.y >= 0), negativeParametersErrorMsg) {
+          log.debug("Creating POI: %s".format(poi))
+          val insertedPoi = insertPoi(poi)
+          complete(StatusCodes.Created, insertedPoi)
+        }
       }
     } ~
     // Get a single Poi by id
@@ -40,18 +58,17 @@ trait PoiServiceRoute extends HttpService with PoiService with SLF4JLogging {
     // Search for POIs with distance less than or equals dmax from a given coordinate (x,y)
     (get & path("pois" / "nearest")) {
       parameters("x".as[Int], "y".as[Int], "dmax".as[Int]) { (x, y, dmax) =>
-        log.debug("Searching for POIs near to: (%s, %s) up to: %s".format(x, y, dmax))
-        complete(searchNearestPois(x, y, dmax))
+        validate((x >=0 && y >= 0 && dmax >= 0), negativeParametersErrorMsg) {
+          log.debug("Searching for POIs near to: (%s, %s) up to: %s".format(x, y, dmax))
+          complete(searchNearestPois(x, y, dmax))
+        }
       }
     } ~
     // Delete a single Poi
     (delete & path("pois" / IntNumber)) { id =>
       log.debug("Deleting POI with id %d".format(id))
       import DefaultJsonProtocol._
-      onComplete(deletePoi(id)) {
-        case Success(value) => complete(value)
-        case Failure(ex)    => complete(ex.getMessage)
-      }
+      complete(deletePoi(id))
     }
   }
 }

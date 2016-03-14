@@ -1,10 +1,8 @@
 package com.xyinc.dto
 
 import spray.json._
-import spray.httpx.unmarshalling._
-import spray.httpx.marshalling._
 import DefaultJsonProtocol._
-import spray.httpx.SprayJsonSupport
+import spray.httpx.SprayJsonSupport._
 import slick.jdbc.GetResult
 
 /**
@@ -33,10 +31,10 @@ object Poi {
 /**
  * Provide JsonFormat for Poi
  */
-object PoiJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
+object PoiJsonProtocol extends DefaultJsonProtocol {
   implicit val poiFormat = jsonFormat4(Poi.apply)
   
-  implicit object TaskJsonFormat extends RootJsonFormat[Poi] {
+  implicit object PoiJsonFormat extends RootJsonFormat[Poi] {
 
     def write(p: Poi) = JsObject(
       "id"    -> JsNumber(p.id),

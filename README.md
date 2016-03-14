@@ -78,7 +78,7 @@ sbt "test-only *PoiDAOSuite"
 
 ### Service Tests
 ```
-sbt "test-only *PoiServiceSpec"
+sbt "test-only *PoiFinderSpec"
 ```
 
 [Scala]: http://www.scala-lang.org

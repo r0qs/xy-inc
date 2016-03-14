@@ -13,16 +13,18 @@ libraryDependencies ++= {
   val akkaVersion = "2.3.14"
   val sprayVersion = "1.3.2"
   Seq(
-    "io.spray"            %%  "spray-can"     % sprayVersion,
-    "io.spray"            %%  "spray-routing" % sprayVersion,
-    "io.spray"            %%  "spray-json"    % sprayVersion,
-    "io.spray"            %%  "spray-testkit" % sprayVersion  % "test",
-    "com.typesafe.akka"   %%  "akka-actor"    % akkaVersion,
-    "com.typesafe.akka"   %%  "akka-slf4j"    % akkaVersion,
-    "com.typesafe.akka"   %%  "akka-testkit"  % akkaVersion   % "test",
-    "com.typesafe.slick"  %%  "slick"         % "3.1.1",
-    "com.h2database"      %   "h2"            % "1.3.175",
-    "org.scalatest"       %%  "scalatest"     % "2.2.4"       % "test",
+    "io.spray"            %%  "spray-can"      % sprayVersion,
+    "io.spray"            %%  "spray-routing"  % sprayVersion,
+    "io.spray"            %%  "spray-json"     % sprayVersion,
+    "io.spray"            %%  "spray-testkit"  % sprayVersion  % "test",
+    "com.typesafe.akka"   %%  "akka-actor"     % akkaVersion,
+    "com.typesafe.akka"   %%  "akka-slf4j"     % akkaVersion,
+    "com.typesafe.akka"   %%  "akka-testkit"   % akkaVersion   % "test",
+    "com.typesafe.slick"  %%  "slick"          % "3.1.1",
+    "com.typesafe.slick"  %%  "slick-hikaricp" % "3.1.1",
+    "com.h2database"      %   "h2"             % "1.3.175",
+    "org.scalatest"       %%  "scalatest"      % "2.2.4"       % "test",
+    "com.zaxxer"          %  "HikariCP"        % "2.3.8",
     "ch.qos.logback"      %   "logback-classic" % "1.1.3"
   )
 }
