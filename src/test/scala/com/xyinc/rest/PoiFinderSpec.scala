@@ -13,8 +13,6 @@ import spray.json._
 import spray.http._
 import StatusCodes._
 import spray.httpx.SprayJsonSupport
-//import spray.httpx.SprayJsonSupport.sprayJsonMarshaller
-//import spray.httpx.SprayJsonSupport.sprayJsonUnmarshaller
 import spray.testkit.ScalatestRouteTest
 import spray.routing.ValidationRejection
 import spray.routing.HttpService
@@ -39,10 +37,7 @@ class PoiFinderSpec
 
   implicit override val patienceConfig = PatienceConfig(timeout = Span(5, Seconds))
 
- // implicit def actorSystem = system
-
   def actorRefFactory = system
-  //private implicit def ec = actorRefFactory.dispatcher
 
   import com.xyinc.dto.PoiJsonProtocol._
   import SprayJsonSupport._

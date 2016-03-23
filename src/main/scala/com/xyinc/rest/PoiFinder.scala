@@ -21,9 +21,7 @@ class PoiFinderActor(routes: Route) extends HttpService with Actor with ActorLog
     logRequestResponse(showRequestResponses _)(routes)
   )
 
-  /**
-   * Log each request and response.
-   */
+  // Log each request and response.
   def showRequestResponses(request: HttpRequest): Any => Option[LogEntry] = {
     case HttpResponse(status, _, _, _) => Some(LogEntry(s"${request.method} ${request.uri} ($status)", InfoLevel))
     case response => Some(LogEntry(s"${request.method} ${request.uri} $response", WarningLevel))

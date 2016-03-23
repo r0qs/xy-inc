@@ -26,9 +26,7 @@ object Boot extends App with ConfigDatabaseSupport with DAL with Api {
   val interface = system.settings.config.getString("app.interface")
   val port = system.settings.config.getInt("app.port")
  
-  /**
-   * Initialize database
-   */
+  // Initialize database
   createDBSchema() onComplete {
     case Success(_) => log.info("Database schema successfully created")
     case Failure(ex) => log.error("Database create failed - {}", ex.getMessage)
